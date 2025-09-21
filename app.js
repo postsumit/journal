@@ -142,6 +142,29 @@ function calcDayScore(entry, dateStr) {
   }
   return Math.round(total);
 }
+
+// --- Total Today helpers
+function calcTotalForDate(dateStr){
+  const entry = getEntry(dateStr);
+  const kind = dayKind(dateStr);
+  const w = normalizeWeightsFor(kind);
+  let total = 0;
+  for (const h of state.habits.filter(h=>h.active)) {
+    const v = Math.max(1, Math.min(10, Math.round(Number(entry.habits?.[h.id] ?? 1))));
+    total += (v/10) * (w[h.id]||0);
+  }
+  return Math.round(total);
+}
+function updateTotalToday(){
+  const el = document.getElementById('totalToday');
+  if (!el) return;
+  el.textContent = String(calcTotalForDate(dateInput.value));
+  // If Analytics tab is active, refresh to reflect the latest
+  if (document.getElementById('analytics').classList.contains('active')) {
+    renderAnalytics();
+  }
+}
+
 function weightSums() {
   const acc = { weekday:0, fri:0, sat:0, sun:0 };
   for (const h of state.habits.filter(h=>h.active)) {
@@ -154,6 +177,7 @@ function weightSums() {
 }
 
 function onDateChange() {
+  updateTotalToday();
   const s = dateInput.value;
   const entry = getEntry(s);
   feltGood.value = entry.answers.feltGood || '';
@@ -171,6 +195,7 @@ function onDateChange() {
   entry.answers.learnImprove = learnImprove.value;
   entry.answers.other = otherNotes.value;
   setEntry(s, entry);
+      updateTotalToday();
 }));
 
 function renderHabitList(){
@@ -210,11 +235,13 @@ function renderHabitList(){
       // save entry
       entry.habits[h.id] = val;
       setEntry(s, entry);
+      updateTotalToday();
     }
 
     range.addEventListener('input', e => update(e.target.value));
     // initial set
     update(range.value);
+    updateTotalToday();
 
     habitList.appendChild(wrap);
   });
