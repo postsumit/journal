@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Journal + Habit Scorecard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+  :root{--navy:#0f1e3a;--navy-600:#1b2c52;--red:#8b1e23;--grey:#f2f3f5;--muted:#667085}
+  body{background:var(--grey);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Arial}
+  .topbar{background:#fff;border-bottom:1px solid #e6e6e6}
+  .tab{border:1px solid #d0d5dd;background:#fff}
+  .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .card{border:1px solid #e6e6e6;background:#fff;border-radius:16px}
+  .badge{background:#e6eefc;color:var(--navy)}
+  button{background:var(--navy);border:1px solid var(--navy);color:#fff;border-radius:12px}
+  button.danger{background:var(--red);border-color:var(--red)}
+  .score{color:var(--navy)}
+  .big-number{color:var(--navy)}
+  .habit .name{font-weight:600;color:var(--navy-600)}
+  /* Slider ticks */
+  .ticks{display:flex;justify-content:space-between;font-size:11px;color:#475467;margin:2px 4px 6px}
+  .ticks span{width:0;transform:translateX(-50%)}
+  </style>
+
+</head>
+<body>
+  <header class="topbar">
+    <div class="left">
+      <h1>📓 Journal + Habit Scorecard</h1>
+      <span id="weightWarning" class="warning hidden">Weights must total 100% for each day type.</span>
+    </div>
+    <div class="right">
+      <button id="exportBtn">Export</button>
+      <label class="importLabel">
+        <input type="file" id="importInput" accept="application/json" />
+        Import
+      </label>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="today">Today</button>
+    <button class="tab" data-tab="analytics">Analytics</button>
+    <button class="tab" data-tab="manage">Manage</button>
+  </nav>
+
+  <main>
+    <!-- TODAY TAB -->
+    <section id="today" class="tabpane active">
+      <div class="row">
+        <div class="card">
+          <div class="card-header">
+            <div class="field">
+              <label>Date</label>
+              <div class="date-nav">
+                <button id="prevDay">◀</button>
+                <input type="date" id="dateInput" />
+                <button id="todayBtn">Today</button>
+                <button id="nextDay">▶</button>
+                <span class="badge" id="dayKindBadge">WEEKDAY</span>
+              </div>
+            </div>
+            
+              <div id="dailyScore" class="score">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row two-col">
+        <div class="card" id="habitsCard">
+          <h2>Habits (1–10 each)</h2>
+          <div id="habitList" class="habit-list"></div>
+        </div>
+        <div class="card" id="journalCard">
+          <h2>Journal (optional)</h2>
+          <div class="field">
+            <label>What I felt good about?</label>
+            <textarea id="feltGood" placeholder="Wins, joys, gratitude…"></textarea>
+          </div>
+          <div class="field">
+            <label>What did I learn and can improve on?</label>
+            <textarea id="learnImprove" placeholder="Lessons, opportunities…"></textarea>
+          </div>
+          <div class="field">
+            <label>Other notes</label>
+            <textarea id="otherNotes" placeholder="Anything else"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANALYTICS TAB -->
+    <section id="analytics" class="tabpane">
+      <div class="row three-col">
+        <div class="card center">
+          <h2>Weekly Average</h2>
+          <div id="weeklyAvg" class="big-number">0.0</div>
+        </div>
+        <div class="card">
+          <h2>Weekday vs Weekend (Avg)</h2>
+          <canvas id="weekdayWeekendChart" height="220"></canvas>
+        </div>
+        <div class="card center">
+          <h2>Selected Set — Weekly Avg</h2>
+          <div id="selectedAvg" class="big-number">0.0</div>
+        </div>
+      </div>
+
+      <div class="row two-col">
+        <div class="card">
+          <h2>Last 7 Days — Daily Score</h2>
+          <canvas id="last7Chart" height="260"></canvas>
+        </div>
+        <div class="card">
+          <h2>Per-Habit Average (1–10)</h2>
+          <canvas id="perHabitChart" height="260"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Choose Habits for Set Analysis</h2>
+        <div id="habitSet" class="tagset"></div>
+      </div>
+    </section>
+
+    <!-- MANAGE TAB -->
+    <section id="manage" class="tabpane">
+      <div class="card">
+        <h2>Habits & Weights</h2>
+        <div id="totalsBanner" class="totals"></div>
+        <div id="manageList"></div>
+        <div class="actions">
+          <button id="addHabit">Add Habit</button>
+          <button id="normalizeBtn">Normalize to 100%</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">Local-first (saved in your browser). Use Export/Import to back up.</footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
